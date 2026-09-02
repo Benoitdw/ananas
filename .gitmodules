@@ -1,0 +1,6 @@
+[submodule "api"]
+	path = api
+	url = git@github.com:Benoitdw/ananas_backend.git
+[submodule "web"]
+	path = web
+	url = git@github.com:Benoitdw/ananas_web.git

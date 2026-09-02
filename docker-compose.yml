@@ -1,0 +1,83 @@
+# Orchestration de developpement des deux depots (./api et ./web).
+# Ce fichier vit dans le dossier parent, en dehors des deux repos git.
+name: ananas
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Port hote configurable: 5432 est souvent deja pris par un autre projet
+      - "${POSTGRES_PORT:-5434}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./api
+    command: uvicorn ananas.api.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRE_DAYS: ${JWT_EXPIRE_DAYS}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      # Lus par `python -m ananas.admin`, jamais par l'API elle-meme
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      AI_PROVIDER: ${AI_PROVIDER:-gemini}
+      AI_MODEL: ${AI_MODEL:-gemini-3.7-flash}
+      TZ: ${TZ}
+    volumes:
+      # montage en dev: le --reload prend les modifications sans rebuild
+      - ./api:/app:z
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    build: ./api
+    command: python -m ananas.worker.main
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      AI_PROVIDER: ${AI_PROVIDER:-gemini}
+      AI_MODEL: ${AI_MODEL:-gemini-3.7-flash}
+      TZ: ${TZ}
+      SCRAPE_CRON_HOUR: ${SCRAPE_CRON_HOUR}
+      SCRAPE_CRON_MINUTE: ${SCRAPE_CRON_MINUTE}
+      NOTIFY_CRON_HOUR: ${NOTIFY_CRON_HOUR:-7}
+      NOTIFY_CRON_MINUTE: ${NOTIFY_CRON_MINUTE:-0}
+    volumes:
+      - ./api:/app:z
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build: ./web
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    environment:
+      PUBLIC_API_URL: ${PUBLIC_API_URL}
+    volumes:
+      - ./web:/app:z
+      # volume anonyme: garde le node_modules de l'image, non ecrase par le bind mount
+      - /app/node_modules
+    ports:
+      - "${WEB_PORT:-5173}:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
