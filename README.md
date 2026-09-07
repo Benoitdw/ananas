@@ -46,9 +46,12 @@ docker compose exec backend alembic upgrade head
 docker compose exec backend python -m ananas.seed
 ```
 
-Le seed charge deux repertoires : les 81 partenaires BioWin herites du POC
-(`api/data/partners.csv`) et 49 biotech/pharma belges (`api/data/biotech-belgique.csv`),
-filtrables separement sur la carte par leur provenance.
+Le seed charge trois repertoires : les 81 partenaires BioWin herites du POC
+(`api/data/partners.csv`), 49 biotech/pharma belges (`api/data/biotech-belgique.csv`)
+et les 137 membres et partenaires du BioPark de Charleroi
+(`api/data/biopark.csv`, suivi dans `api/BIOPARK.md`). Chacun garde sa
+provenance (`biowin`, `curated`, `biopark`) et se filtre separement sur la
+carte.
 
 Pour disposer d'un compte d'administration, renseigne `ADMIN_EMAIL` et
 `ADMIN_PASSWORD` dans le `.env` puis :
