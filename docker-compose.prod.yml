@@ -36,13 +36,20 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRE_DAYS: ${JWT_EXPIRE_DAYS}
       CORS_ORIGINS: ${CORS_ORIGINS}
+      # Derriere le HTTPS de NPM : cookie de session en Secure.
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       GEMINI_API_KEY: ${GEMINI_API_KEY}
       AI_PROVIDER: ${AI_PROVIDER:-gemini}
       AI_MODEL: ${AI_MODEL:-gemini-3.7-flash}
       TZ: ${TZ}
     ports:
+      # Utile en debug/local ; en prod c'est NPM qui atteint `backend:8000`
+      # via le reseau `proxy`, l'exposition sur l'hote n'est pas requise.
       - "${BACKEND_PORT:-8000}:8000"
+    networks:
+      - default
+      - proxy
     depends_on:
       db:
         condition: service_healthy
@@ -75,9 +82,23 @@ services:
       PUBLIC_API_URL: ${PUBLIC_API_URL}
     ports:
       - "${WEB_PORT:-3000}:3000"
+    networks:
+      - default
+      - proxy
     depends_on:
       - backend
     restart: unless-stopped
 
 volumes:
   pgdata:
+
+networks:
+  # Reseau interne du projet (db <-> backend <-> worker <-> web).
+  default:
+  # Reseau partage avec Nginx Proxy Manager. Cree-le une fois sur le NAS :
+  #   docker network create proxy
+  # puis rattache le conteneur NPM a ce reseau. NPM peut alors proxifier
+  # `web:3000` (front) et `backend:8000` (API) par nom de service.
+  proxy:
+    external: true
+    name: ${PROXY_NETWORK:-proxy}

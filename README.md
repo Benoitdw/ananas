@@ -89,6 +89,34 @@ docker compose -f docker-compose.prod.yml up -d
 docker compose -f docker-compose.prod.yml exec backend alembic upgrade head
 ```
 
+### Reverse proxy (Nginx Proxy Manager)
+
+Le front est un **SPA** : le navigateur appelle l'API directement, jamais le
+conteneur `web`. `http://backend:8000` ne resout donc pas cote front — il faut
+**deux** proxy hosts NPM, l'un pour le front, l'autre pour l'API :
+
+```bash
+docker network create proxy          # une seule fois
+# rattache le conteneur NPM au reseau `proxy`
+```
+
+`docker-compose.prod.yml` place deja `web` et `backend` sur ce reseau. Dans NPM :
+
+| Proxy host                     | Forward         | Sert a                         |
+| ------------------------------ | --------------- | ------------------------------ |
+| `ananas.mondomaine.fr`         | `web:3000`      | le front                       |
+| `api.ananas.mondomaine.fr`     | `backend:8000`  | l'API (fetch du navigateur)    |
+
+Puis dans `.env` du NAS :
+
+```
+PUBLIC_API_URL=https://api.ananas.mondomaine.fr
+CORS_ORIGINS=https://ananas.mondomaine.fr
+```
+
+Les deux domaines partageant le suffixe `mondomaine.fr`, le cookie de session
+(`SameSite=Lax`) passe sans reglage supplementaire.
+
 Pour rendre les packages publics (evite le `docker login` sur le NAS) :
 GitHub → onglet **Packages** du compte → paquet → *Package settings* →
 *Change visibility* → Public, pour `ananas_backend` et `ananas_web`.
@@ -114,15 +142,26 @@ le NAS viennent de GHCR, pas d'un `git pull` local.
    tags et adresse suffisent. Elle est geocodee a l'envoi, devient visible et
    filtrable par tout le monde, et peut etre ajoutee a ta veille dans la
    foulee. Les doublons sont detectes par nom et par domaine du site.
-4. `/settings` → **importer son CV en PDF** (ou coller le texte) et decrire ses
+4. `/settings` → **renseigner son domicile** (une ville suffit) et son
+   perimetre de recherche. L'adresse est geocodee a l'enregistrement; la carte
+   trace alors un cercle en pointilles autour du point de reference, chaque
+   entreprise et chaque offre affiche sa distance a vol d'oiseau, et on peut
+   filtrer « a moins de N km » ou trier par proximite depuis la carte comme
+   depuis la page Offres. Le curseur de la carte fait varier le rayon sans
+   toucher au reglage enregistre. Une case — decochee par defaut — applique
+   aussi ce perimetre a la notification quotidienne : une entreprise dont la
+   position est inconnue reste notifiee, et le message annonce en pied combien
+   d'offres le rayon a ecartees, pour qu'un filtre ne se confonde jamais avec
+   une journee sans offre.
+5. `/settings` → **importer son CV en PDF** (ou coller le texte) et decrire ses
    aspirations. Ananas en extrait un
    profil structure (et te montre ce qu'il en a compris), puis donne a chaque
    offre un score de correspondance. Tu regles le seuil de pertinence et tu
    peux ne recevoir que les offres au-dessus.
-5. `/settings` → **Connecter Telegram** : un bouton ouvre le bot (ou un QR code
+6. `/settings` → **Connecter Telegram** : un bouton ouvre le bot (ou un QR code
    a scanner depuis le telephone), un appui sur **Démarrer**, et la page se lie
    toute seule. Rien a chercher, aucun identifiant a recopier.
-6. Chaque nuit a minuit, le worker scrape les entreprises suivies et soumet un
+7. Chaque nuit a minuit, le worker scrape les entreprises suivies et soumet un
    lot de caracterisation a Gemini (moitie prix, mais sans delai garanti) ; a
    7h il recolte ce qui est pret et envoie les offres qui te concernent,
    **triees par score**. Rien de neuf → aucun message. Une entreprise que tu
@@ -203,7 +242,9 @@ anti-doublon (`sent_job_notifications`).
 **Fait** — comptes, carte, favoris, proposition d'entreprises par les
 utilisateurs (avec tags partages et geocodage), correction d'une fiche par son
 auteur ou par l'administration, page d'administration (repertoire et comptes),
-profil professionnel et score de correspondance des offres, connexion Telegram,
+profil professionnel et score de correspondance des offres, domicile de
+reference avec perimetre affiche sur la carte (filtre et tri par distance sur
+la carte et dans la page Offres), connexion Telegram,
 worker planifie, detection des nouvelles offres, notification triee par
 pertinence, une page Offres qui montre soit ta veille soit tout le repertoire
 scrape (avec suivi d'une entreprise en un clic depuis une offre, groupes
