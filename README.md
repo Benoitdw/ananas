@@ -156,8 +156,11 @@ le NAS viennent de GHCR, pas d'un `git pull` local.
 5. `/settings` → **importer son CV en PDF** (ou coller le texte) et decrire ses
    aspirations. Ananas en extrait un
    profil structure (et te montre ce qu'il en a compris), puis donne a chaque
-   offre un score de correspondance. Tu regles le seuil de pertinence et tu
-   peux ne recevoir que les offres au-dessus.
+   offre un score de correspondance. **Ce qui a ete compris s'edite chip par
+   chip** — retirer une competence mal lue, ajouter une langue oubliee,
+   corriger le niveau : les scores sont recalcules a l'enregistrement, sans
+   repasser par le CV. Tu regles le seuil de pertinence et tu peux ne recevoir
+   que les offres au-dessus.
 6. `/settings` → **Connecter Telegram** : un bouton ouvre le bot (ou un QR code
    a scanner depuis le telephone), un appui sur **Démarrer**, et la page se lie
    toute seule. Rien a chercher, aucun identifiant a recopier.
@@ -242,7 +245,8 @@ anti-doublon (`sent_job_notifications`).
 **Fait** — comptes, carte, favoris, proposition d'entreprises par les
 utilisateurs (avec tags partages et geocodage), correction d'une fiche par son
 auteur ou par l'administration, page d'administration (repertoire et comptes),
-profil professionnel et score de correspondance des offres, domicile de
+profil professionnel (correction manuelle du profil extrait comprise) et score
+de correspondance des offres, domicile de
 reference avec perimetre affiche sur la carte (filtre et tri par distance sur
 la carte et dans la page Offres), connexion Telegram,
 worker planifie, detection des nouvelles offres, notification triee par
