@@ -53,6 +53,13 @@ et les 137 membres et partenaires du BioPark de Charleroi
 provenance (`biowin`, `curated`, `biopark`) et se filtre separement sur la
 carte.
 
+S'y ajoute une **liste** : la « Liste An » (`api/data/liste-an.csv`, suivi
+dans `api/LISTE_AN.md`), 62 employeurs scientifiques. Une liste designe des
+fiches plutot qu'elle n'en cree : celles deja connues d'un autre repertoire
+recoivent seulement le tag « Liste An », les autres sont creees avec la
+provenance `liste-an`. Le filtre par tag « Liste An » montre donc toute la
+liste sur la carte.
+
 Pour disposer d'un compte d'administration, renseigne `ADMIN_EMAIL` et
 `ADMIN_PASSWORD` dans le `.env` puis :
 
@@ -258,7 +265,9 @@ scrape (avec suivi d'une entreprise en un clic depuis une offre, groupes
 repliables, et possibilite d'ecarter une offre qui ne t'interesse pas), sept
 scrapers reels — QbD Group (Teamtailor), GSK Wavre et Rixensart, UCB
 Braine-l'Alleud et Anderlecht (Phenom People), Sanofi Belgium (Radancy),
-AbbVie Belgium (Attrax) — 230 offres reelles.
+AbbVie Belgium (Attrax) — 230 offres reelles. Depuis, une soixantaine de
+scrapers (voir `api/SCRAPERS.md`), dont 29 pour la Liste An
+(`api/LISTE_AN.md`).
 
 **A faire par toi** — les autres scrapers. Voir `api/README.md`, section
 *Ecrire un scraper* : une seule methode a implementer, le fichier depose est
