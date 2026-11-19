@@ -57,8 +57,8 @@ S'y ajoute une **liste** : la « Liste An » (`api/data/liste-an.csv`, suivi
 dans `api/LISTE_AN.md`), 62 employeurs scientifiques. Une liste designe des
 fiches plutot qu'elle n'en cree : celles deja connues d'un autre repertoire
 recoivent seulement le tag « Liste An », les autres sont creees avec la
-provenance `liste-an`. Le filtre par tag « Liste An » montre donc toute la
-liste sur la carte.
+provenance `liste-an`. Le filtre de provenance « Liste An » montre les deux:
+toute la liste.
 
 Pour disposer d'un compte d'administration, renseigne `ADMIN_EMAIL` et
 `ADMIN_PASSWORD` dans le `.env` puis :
