@@ -54,7 +54,7 @@ provenance (`biowin`, `curated`, `biopark`) et se filtre separement sur la
 carte.
 
 S'y ajoute une **liste** : la « Liste An » (`api/data/liste-an.csv`, suivi
-dans `api/LISTE_AN.md`), 62 employeurs scientifiques. Une liste designe des
+dans `api/LISTE_AN.md`), 63 employeurs scientifiques. Une liste designe des
 fiches plutot qu'elle n'en cree : celles deja connues d'un autre repertoire
 recoivent seulement le tag « Liste An », les autres sont creees avec la
 provenance `liste-an`. Le filtre de provenance « Liste An » montre les deux:
